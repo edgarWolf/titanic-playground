@@ -26,7 +26,7 @@ class NNModel():
                 x = Dense(hidden_layers[i], activation=activations[i])(x)
         else: 
             x = inputs
-        outputs = Dense(1)(x)
+        outputs = Dense(1, activation="sigmoid")(x)
         model = keras.Model(inputs=inputs, outputs=outputs, name=name)
         
         self.model = model
