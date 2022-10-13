@@ -181,15 +181,35 @@ def main():
     X_test = preproecessor.scale_data(X_test, scaler)
 
     keras.backend.clear_session()
-    model = NNModel(X_train.shape[1], [64, 64, 32, 16], ["relu", "relu", "relu", "relu"])
-    model.compile(keras.losses.BinaryCrossentropy(), keras.optimizers.Adam())
-    model.summary()
-    history = model.train(X_train, y_train)
 
-    predictions = model.predict(X_test)
-    submissions = preproecessor.create_submission_df(predictions)
+    test_layers = [
+        [64],
+        [32],
+        [16],
+        [8],
+        [64, 32],
+        [64, 16],
+        [64, 8],
+        [32, 16],
+        [32, 8],
+        [16, 8],
+        [64, 32, 16],
+        [64, 32, 8],
+        [64, 16, 8],
+        [64, 32, 16, 8]
+    ]
 
-    data_loader.export_data(submissions, "nn_submission.csv")
+    for test_layer in test_layers:
+        model = NNModel(X_train.shape[1], test_layer, ["relu" for i in range(len(test_layer))])
+        print("######### MODEL WITH LAYERS " + str(test_layer) + " #########")
+        model.compile(keras.losses.BinaryCrossentropy(), keras.optimizers.Adam())
+        model.summary()
+        history = model.train(X_train, y_train)
+
+        predictions = model.predict(X_test)
+        submissions = preproecessor.create_submission_df(predictions)
+        out_file_name = f"nn_submissions_{'_'.join( [ str(layer) for layer in test_layer ])}.csv"
+        data_loader.export_data(submissions, out_file_name)
 
 
     
